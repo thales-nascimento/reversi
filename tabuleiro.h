@@ -38,5 +38,6 @@ void jogar(int jogador, Posicao jogada);
 /**
 * Esvazia o tabuleiro, colocando todas as posições como VAZIO
 */
+void esvaziaTabuleiro();
 
 #endif

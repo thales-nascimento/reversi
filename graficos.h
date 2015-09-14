@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <GL/glut.h>
+#include <SOIL/SOIL.h>
 #include "tabuleiro.h"
 
 #define YMAX 600
@@ -11,7 +12,8 @@
 
 #define LADO_CASA (XMAX<YMAX?XMAX:YMAX)/(LADO_TABULEIRO+1)
 
-
+GLuint carregarTextura(const char *caminho);
+void desenhaTextura(GLuint textura);
 
 void desenhaTabuleiro();
 void desenhaPontuacao();

@@ -33,13 +33,14 @@ typedef struct{
 	Botao *botoes;
 	Texto *textos;
 	unsigned int n_botoes,n_textos;
+	GLuint textura;
 }Menu;
 
 void iniciarMenu(const int _XMAX, const int _YMAX);
-int novoMenu();
+int novoMenu(const char *CAMINHO_TEXTURA);
 void selecionarMenu(int menu);
-void adicionarTexto(char* texto, float x, float y);
-void adicionarBotao(char* texto, float x, float w, float y, float h, void (*funcao)());
+void adicionarTexto(char *texto, float x, float y);
+void adicionarBotao(char *texto, float x, float w, float y, float h, void (*funcao)());
 
 void desenhaMenu();
 

@@ -129,3 +129,33 @@ void popup(const char *texto){
 	}
 }
 
+GLuint carregarTextura(const char *CAMINHO){
+    GLuint textura = SOIL_load_OGL_texture(
+        CAMINHO,
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS
+	);
+    if (textura == 0) {
+        printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+        exit(1);
+    }
+    return textura;
+}
+
+void desenhaTextura(GLuint textura){
+	
+    glColor3f(1, 1, 1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textura);
+    glBegin(GL_QUADS);
+        // Associamos um canto da textura para cada vértice
+        glTexCoord2f(0, 0); glVertex2d(0,0);
+        glTexCoord2f(0, 1); glVertex2d(0,YMAX);
+        glTexCoord2f(1, 1); glVertex2d(XMAX,YMAX);
+        glTexCoord2f(1, 0); glVertex2d(XMAX,0);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    
+}
+

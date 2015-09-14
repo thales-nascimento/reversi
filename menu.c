@@ -7,6 +7,7 @@ Texto *textos = NULL;
 unsigned int n_menus=0;
 unsigned int menu_ativo=0;
 Menu *menus = NULL;
+GLuint textura_menu;
 
 int MXMAX=0,MYMAX=0;
 
@@ -15,26 +16,30 @@ void iniciarMenu(const int _XMAX,const int _YMAX){
 	MXMAX=_XMAX;
 }
 
-int novoMenu(){
-	++n_menus;
-	menus = realloc(menus, sizeof(Menu)*n_menus);
-	return n_menus-1;
+int novoMenu(const char *CAMINHO_TEXTURA){	
+	menus = realloc(menus, sizeof(Menu)*(n_menus+1));
+	menus[n_menus].textos = NULL;
+	menus[n_menus].botoes = NULL;
+	menus[n_menus].n_textos=menus[n_menus].n_botoes=0;
+	menus[n_menus].textura = carregarTextura(CAMINHO_TEXTURA);
+	return n_menus++;
 }
 void selecionarMenu(int menu){
+	if(menu>n_menus ||n_menus==0){
+		puts("indice de menu inexistente");
+		puts("erro disparado por trocarMenu(int)");
+		exit(1);
+	}
 	menus[menu_ativo].botoes=botoes;
 	menus[menu_ativo].textos=textos;
 	menus[menu_ativo].n_botoes=n_botoes;
 	menus[menu_ativo].n_textos=n_textos;
 	menu_ativo=menu;
-	if(menu>n_menus || n_menus==0){
-		puts("indice de menu inexistente");
-		puts("erro disparado por trocarMenu(int)");
-		exit(1);
-	}
 	botoes=menus[menu].botoes;
 	textos=menus[menu].textos;
 	n_botoes=menus[menu].n_botoes;
 	n_textos=menus[menu].n_textos;
+	textura_menu = menus[menu].textura;
 }
 
 void adicionarTexto(char* texto, float x, float y){
@@ -70,8 +75,11 @@ void adicionarBotao(char* texto, float x, float w, float y, float h, void (*func
 	botoes[n_botoes-1].estado = BOTAO_NORMAL;
 }
 
+
+
 void desenhaMenu(){
 	glClear(GL_COLOR_BUFFER_BIT);
+	desenhaTextura(textura_menu);
 	
 	int i,j;
 	for(i=0;i<n_textos;++i){

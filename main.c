@@ -3,7 +3,6 @@
 #include "tabuleiro.h"
 #include "menu.h"
 #include <SDL2/SDL.h>
-#include <SOIL/SOIL.h>
 #include <SDL2/SDL_mixer.h> 
 
 #define SEM_JOGADAS 0
@@ -17,6 +16,8 @@
 
 int jogador_ativo = BRANCO;
 int menu_principal=0,menu_pausa=0;
+
+const char CAMINHO_TEXTURA_MENU[] = "resources/reversi2.jpg";
 
 
 void trocarEstado(int estado);
@@ -198,11 +199,14 @@ void inicializaGl(int argc, char** argv){
 	glutInitDisplayMode(GLUT_SINGLE);
 	glutInitWindowSize(XMAX,YMAX);
 	glutCreateWindow("reversi");
-	
-	glDisable(GL_LIGHTING);
-	
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	glViewport(0,0, XMAX, YMAX);
 	glOrtho(0, XMAX, YMAX, 0, -1, 1);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	
 }
 
@@ -231,22 +235,20 @@ void retornarAoJogo(){
 
 
 int main(int argc, char **argv){
+	inicializaGl(argc, argv);
 	iniciarMenu(XMAX,YMAX);
-	menu_principal = novoMenu();
+	menu_principal = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_principal);
-	adicionarTexto("REVERSI",50,10);
-	adicionarBotao("humano vs humano", 40,20,20,5,iniciarPartidaHumanoHumano);
-	adicionarBotao("humano vs maquina", 40,20,28,5,inciarPartidaHumanoMaquina);
-	adicionarBotao("creditos", 40,20,36,5,mostrarCreditos);
-	adicionarBotao("sair", 40,20,44,5,quitar);
-	menu_pausa = novoMenu();
+	adicionarBotao("humano vs humano", 40,20,28,5,iniciarPartidaHumanoHumano);
+	adicionarBotao("humano vs maquina", 40,20,36,5,inciarPartidaHumanoMaquina);
+	adicionarBotao("creditos", 40,20,44,5,mostrarCreditos);
+	adicionarBotao("sair", 40,20,52,5,quitar);
+	menu_pausa = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_pausa);
 	adicionarTexto("JOGO PAUSADO", 50, 10);
-	adicionarBotao("retornar ao jogo", 40,20,20,5,retornarAoJogo);
-	adicionarBotao("menu principal", 40,20,28,5,menuPrincipal);
-	adicionarBotao("sair", 40,20,36,5,quitar);
-	
-	inicializaGl(argc, argv);
+	adicionarBotao("retornar ao jogo", 40,20,28,5,retornarAoJogo);
+	adicionarBotao("menu principal", 40,20,36,5,menuPrincipal);
+	adicionarBotao("sair", 40,20,44,5,quitar);
 	
 	menuPrincipal();
 	
