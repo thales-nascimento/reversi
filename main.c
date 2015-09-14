@@ -2,6 +2,9 @@
 #include "graficos.h"
 #include "tabuleiro.h"
 #include "menu.h"
+#include <SDL2/SDL.h>
+#include <SOIL/SOIL.h>
+#include <SDL2/SDL_mixer.h> 
 
 #define SEM_JOGADAS 0
 #define HA_JOGADAS 1
@@ -78,7 +81,7 @@ void drawVictory(){
 void drawGame(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	desenhaTabuleiro();
-	desenhaPontuacao();
+	desenhaPontuacao(jogador_ativo);
 	glFlush();
 }
 void desenhaCreditos(){

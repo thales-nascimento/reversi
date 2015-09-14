@@ -1,5 +1,5 @@
 all: main.c tabuleiro.o graficos.o menu.o
-	gcc -o tester tabuleiro.o graficos.o menu.o main.c -lm -lGL -lglut
+	gcc -o tester tabuleiro.o graficos.o menu.o main.c -lm -lGL -lglut -lSDL -lSOIL -lSDL_mixer
 	
 menu.o: menu.c
 	gcc -c -o menu.o menu.c

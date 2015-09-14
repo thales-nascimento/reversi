@@ -1,5 +1,5 @@
 #include "tabuleiro.h"
-char tabuleiro[LADO_TABULEIRO][LADO_TABULEIRO] = {{0}};
+uint16_t tabuleiro[LADO_TABULEIRO][LADO_TABULEIRO] = {{0}};
 Pontos pontuacao = {0,0};
 
 
@@ -13,7 +13,6 @@ void pontuar(int jogador, unsigned char swap){		//incrementa os pontos do jogado
 		pontuacao.preto -= swap;
 	}
 }
-
 
 Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
 	// Vetor de jogadas possiveis
@@ -321,6 +320,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i-1; i>jogada.x; i--){			//retornando convertendo as peças
 				tabuleiro[jogada.y][i] &= ~adversario;
 				tabuleiro[jogada.y][i] |= jogador;
+				tabuleiro[jogada.y][i] |= TRANSICAO;
 			}
 			break;
 		
@@ -334,6 +334,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i+1; i<jogada.x; i++){		//retornando fechando as peças
 				tabuleiro[jogada.y][i] &= ~adversario;
 				tabuleiro[jogada.y][i] |= jogador;
+				tabuleiro[jogada.y][i] |= TRANSICAO;
 			}
 			break;
 		
@@ -347,6 +348,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i-1; i>jogada.y; i--){
 				tabuleiro[i][jogada.x] &= ~adversario;
 				tabuleiro[i][jogada.x] |= jogador;
+				tabuleiro[i][jogada.x] |= TRANSICAO;
 			}
 			break;
 			
@@ -360,6 +362,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i+1; i<jogada.y; i++){
 				tabuleiro[i][jogada.x] &= ~adversario;
 				tabuleiro[i][jogada.x] |= jogador;
+				tabuleiro[i][jogada.x] |= TRANSICAO;
 			}
 			break;
 			
@@ -374,6 +377,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i+1, j=j+1; i<jogada.x; i++,j++){
 				tabuleiro[j][i] &= ~adversario;
 				tabuleiro[j][i] |= jogador;
+				tabuleiro[j][i] |= TRANSICAO;
 			}
 			break;
 			
@@ -387,6 +391,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i-1, j=j+1; j<jogada.y; i--,j++){
 				tabuleiro[j][i] &= ~adversario;
 				tabuleiro[j][i] |= jogador;
+				tabuleiro[j][i] |= TRANSICAO;
 			}
 			break;
 			
@@ -400,6 +405,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i+1, j=j-1; i<jogada.x; i++,j--){
 				tabuleiro[j][i] &= ~adversario;
 				tabuleiro[j][i] |= jogador;
+				tabuleiro[j][i] |= TRANSICAO;
 			}
 			break;
 			
@@ -413,6 +419,7 @@ void jogar(int jogador, const Posicao jogada){
 			for(i=i-1, j=j-1; i>jogada.x; i--,j--){
 				tabuleiro[j][i] &= ~adversario;
 				tabuleiro[j][i] |= jogador;
+				tabuleiro[j][i] |= TRANSICAO;
 			}
 			break;
 			
@@ -434,5 +441,7 @@ void esvaziaTabuleiro() {
 	}
 	tabuleiro[LADO_TABULEIRO/2][LADO_TABULEIRO/2] = tabuleiro[LADO_TABULEIRO/2-1][LADO_TABULEIRO/2-1] = PRETO;
 	tabuleiro[LADO_TABULEIRO/2][LADO_TABULEIRO/2-1] = tabuleiro[LADO_TABULEIRO/2-1][LADO_TABULEIRO/2] = BRANCO;
+	pontuacao.branco = 2;
+	pontuacao.preto = 2;
 }
 

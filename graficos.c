@@ -1,6 +1,8 @@
 #include "graficos.h"
 #include <stdio.h>
 
+#define COR_BRANCO 224
+#define COR_PRETO 31
 
 void desenhaTabuleiro(){
 	int i,j;
@@ -38,9 +40,21 @@ void desenhaTabuleiro(){
 			if(tabuleiro[i][j] & VAZIO){
 				continue;
 			}else if(tabuleiro[i][j] & PRETO){
-				glColor3ub(31,31,31);
+				if(tabuleiro[i][j] & TRANSICAO){
+					int cinza = COR_PRETO + (COR_BRANCO-COR_PRETO)*(tabuleiro[i][j] & TRANSICAO)/(TRANSICAO+1);
+					glColor3ub(cinza,cinza,cinza);
+					tabuleiro[i][j] -= TRANSITAR;
+				} else {
+					glColor3ub(COR_PRETO,COR_PRETO,COR_PRETO);
+				}
 			} else if(tabuleiro[i][j] & BRANCO){
-				glColor3ub(224,224,224);
+				if(tabuleiro[i][j] & TRANSICAO){
+					int cinza = COR_BRANCO - (COR_BRANCO-COR_PRETO)*(tabuleiro[i][j] & TRANSICAO)/(TRANSICAO+1);
+					glColor3ub(cinza,cinza,cinza);
+					tabuleiro[i][j] -= TRANSITAR;
+				} else {
+					glColor3ub(COR_BRANCO,COR_BRANCO,COR_BRANCO);
+				}
 			}
 			
 			int a;
