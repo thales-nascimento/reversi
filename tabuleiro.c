@@ -1,17 +1,11 @@
 #include "tabuleiro.h"
-uint16_t tabuleiro[LADO_TABULEIRO][LADO_TABULEIRO] = {{0}};
+celula_t tabuleiro[LADO_TABULEIRO][LADO_TABULEIRO] = {{0}};
 Pontos pontuacao = {0,0};
 
 
 
 void pontuar(int jogador, unsigned char swap){		//incrementa os pontos do jogador em 1 e converte 'swap' pontos do adversario para o jogador
-	if(jogador==PRETO){
-		pontuacao.preto += swap +1;
-		pontuacao.branco -= swap;
-	} else {
-		pontuacao.branco += swap +1;
-		pontuacao.preto -= swap;
-	}
+	
 }
 
 Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
@@ -33,61 +27,49 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
 				int n_vizinhos = 0;
                 if (i == 0) { // se estiver na primeira linha não verifica a linha anterior
                     if (tabuleiro[i+1][j] & adversario) {
-                        Posicao aux;
                         n_vizinhos++;
                         vizinhos = (Posicao*) realloc(vizinhos, n_vizinhos * sizeof(Posicao));
-                        aux.x = i+1;
-                        aux.y = j;
-                        vizinhos[n_vizinhos - 1] = aux;
+                        vizinhos[n_vizinhos -1].x=i+1;
+                        vizinhos[n_vizinhos -1].y=j;
                     }
                     switch (j) {
                         default:
                         case 0: // se estiver na primeira coluna não verifica a coluna anterior
                             if (tabuleiro[i][j+1] & adversario) {
-                                Posicao aux;
                                 n_vizinhos++;
                                 vizinhos = (Posicao*) realloc(vizinhos, n_vizinhos * sizeof(Posicao));
-                                aux.x = i;
-                                aux.y = j+1;
-                                vizinhos[n_vizinhos - 1] = aux;
+                                vizinhos[n_vizinhos -1].x=i;
+								vizinhos[n_vizinhos -1].y=j+1;
                             }
                             if (tabuleiro[i+1][j+1] & adversario) {
-                                Posicao aux;
                                 n_vizinhos++;
                                 vizinhos = (Posicao*) realloc(vizinhos, n_vizinhos * sizeof(Posicao));
-                                aux.x = i+1;
-                                aux.y = j+1;
-                                vizinhos[n_vizinhos - 1] = aux;
+                                vizinhos[n_vizinhos -1].x=i+1;
+								vizinhos[n_vizinhos -1].y=j+1;
                             }
                             if (j == 0) // se entrar no 0 direto sai, se tiver entrado no default vai para o próximo caso
                                 break;
                         case LADO_TABULEIRO - 1: // se estiver na última coluna não verifica a proxima coluna
-                            if (tabuleiro[i][j-1] & adversario) {
-                                Posicao aux;
+                            if (tabuleiro[i][j-1] & adversario) {                       
                                 n_vizinhos++;
                                 vizinhos = (Posicao*) realloc(vizinhos, n_vizinhos * sizeof(Posicao));
-                                aux.x = i;
-                                aux.y = j-1;
-                                vizinhos[n_vizinhos - 1] = aux;
+                                vizinhos[n_vizinhos -1].x=i;
+								vizinhos[n_vizinhos -1].y=j-1;
                             }
                             if (tabuleiro[i+1][j-1] & adversario) {
-                                Posicao aux;
                                 n_vizinhos++;
                                 vizinhos = (Posicao*) realloc(vizinhos, n_vizinhos * sizeof(Posicao));
-                                aux.x = i+1;
-                                aux.y = j-1;
-                                vizinhos[n_vizinhos - 1] = aux;
+                                vizinhos[n_vizinhos -1].x=i+1;
+								vizinhos[n_vizinhos -1].y=j-1;
                             }
                             break;
                     }
                 } else if (i == LADO_TABULEIRO - 1) {
                     if (tabuleiro[i-1][j] & adversario) {
-                        Posicao aux;
                         n_vizinhos++;
                         vizinhos = (Posicao*) realloc(vizinhos, n_vizinhos * sizeof(Posicao));
-                        aux.x = i-1;
-                        aux.y = j;
-                        vizinhos[n_vizinhos - 1] = aux;
+                        vizinhos[n_vizinhos -1].x=i-1;
+                        vizinhos[n_vizinhos -1].y=j;
                     }
                     switch (j) {
                         default: 
@@ -186,13 +168,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                 for (c = 0; c < n_vizinhos; c++) {
                     if (vizinhos[c].x == i + 1 && vizinhos[c].y == j - 1) { // baixo esquerda
                         for (k = i + 2, l = j - 2; k < LADO_TABULEIRO && l >= 0; k++, l--) {
-                            if (tabuleiro[k][l] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[k][l] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = k;
-                                aux.y = l;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =l;
+                                jogadas[(*n_jogadas) - 1].y =k;
                                 break;
                             } else if (tabuleiro[k][l] & jogador) {
                                 break;
@@ -200,13 +180,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i + 1 && vizinhos[c].y == j){ // baixo
                         for (k = i + 2; k < LADO_TABULEIRO; k++) {
-                            if (tabuleiro[k][j] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[k][j] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = k;
-                                aux.y = j;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =j;
+                                jogadas[(*n_jogadas) - 1].y =k;
                                 break;
                             } else if (tabuleiro[k][j] & jogador) {
                                 break;
@@ -214,13 +192,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i + 1 && vizinhos[c].y == j + 1){ // baixo direita
                         for (k = i + 2, l = j + 2; k < LADO_TABULEIRO && l < LADO_TABULEIRO; k++, l++) {
-                            if (tabuleiro[k][l] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[k][l] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = k;
-                                aux.y = l;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =l;
+                                jogadas[(*n_jogadas) - 1].y =k;
                                 break;
                             } else if (tabuleiro[k][l] & jogador) {
                                 break;
@@ -228,13 +204,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i     && vizinhos[c].y == j + 1){ // direita
                         for (l = j + 2; l < LADO_TABULEIRO; l++) {
-                            if (tabuleiro[i][l] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[i][l] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = i;
-                                aux.y = l;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =l;
+                                jogadas[(*n_jogadas) - 1].y =i;
                                 break;
                             } else if (tabuleiro[i][l] & jogador) {
                                 break;
@@ -242,13 +216,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i - 1 && vizinhos[c].y == j + 1){ // cima direita
                         for (k = i - 2, l = j + 2; k >= 0 && l < LADO_TABULEIRO; k--, l++) {
-                            if (tabuleiro[k][l] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[k][l] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = k;
-                                aux.y = l;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =l;
+                                jogadas[(*n_jogadas) - 1].y =k;
                                 break;
                             } else if (tabuleiro[k][l] & jogador) {
                                 break;
@@ -256,13 +228,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i - 1 && vizinhos[c].y == j){ // cima
                         for (k = i - 2; k >= 0; k--) {
-                            if (tabuleiro[k][j] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[k][j] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = k;
-                                aux.y = j;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =j;
+                                jogadas[(*n_jogadas) - 1].y =k;
                                 break;
                             } else if (tabuleiro[k][j] & jogador) {
                                 break;
@@ -270,13 +240,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i - 1 && vizinhos[c].y == j - 1){ // cima esquerda
                         for (k = i - 2, l = j - 2; k >= 0 && l >= 0; k--, l--) {
-                            if (tabuleiro[k][l] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[k][l] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = k;
-                                aux.y = l;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =l;
+                                jogadas[(*n_jogadas) - 1].y =k;
                                 break;
                             } else if (tabuleiro[k][l] & jogador) {
                                 break;
@@ -284,13 +252,11 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
                         }
                     } else if (vizinhos[c].x == i && vizinhos[c].y == j - 1){ // esquerda
                         for (l = j - 2; l >= 0; l--) {
-                            if (tabuleiro[i][l] == VAZIO) {
-                                Posicao aux;
+                            if (tabuleiro[i][l] & VAZIO) {
                                 (*n_jogadas)++;
-                                aux.x = i;
-                                aux.y = l;
                                 jogadas = (Posicao*) realloc(jogadas, (*n_jogadas) * sizeof(Posicao));
-                                jogadas[(*n_jogadas) - 1] = aux;
+                                jogadas[(*n_jogadas) - 1].x =l;
+                                jogadas[(*n_jogadas) - 1].y =i;
                                 break;
                             } else if (tabuleiro[i][l] & jogador) {
                                 break;
@@ -305,6 +271,7 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas) {
 	
 	return jogadas;
 }
+
 
 void jogar(int jogador, const Posicao jogada){
 	unsigned char swap=0;		//pontos que serão trocados entre os jogadores
@@ -428,7 +395,13 @@ void jogar(int jogador, const Posicao jogada){
 		} 
 	}
 	
-	pontuar(jogador, swap);
+	if(jogador==PRETO){
+		pontuacao.preto += swap +1;
+		pontuacao.branco -= swap;
+	} else {
+		pontuacao.branco += swap +1;
+		pontuacao.preto -= swap;
+	}
 }
 
 

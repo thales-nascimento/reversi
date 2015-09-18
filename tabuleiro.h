@@ -14,7 +14,8 @@
 #define TRANSITAR 0x1
 
 #define LADO_TABULEIRO 8
-extern uint16_t tabuleiro[LADO_TABULEIRO][LADO_TABULEIRO];
+typedef uint16_t celula_t;
+extern celula_t tabuleiro[LADO_TABULEIRO][LADO_TABULEIRO];
 
 typedef struct{
 	unsigned char preto, branco;
@@ -39,5 +40,7 @@ void jogar(int jogador, Posicao jogada);
 * Esvazia o tabuleiro, colocando todas as posições como VAZIO
 */
 void esvaziaTabuleiro();
+
+void pontuar(int jogador, unsigned char swap);
 
 #endif

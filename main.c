@@ -2,69 +2,86 @@
 #include "graficos.h"
 #include "tabuleiro.h"
 #include "menu.h"
+#include "minimax.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h> 
-
-#define SEM_JOGADAS 0
-#define HA_JOGADAS 1
+#include <time.h>
 
 #define ESTADO_JOGANDO 0
-#define ESTADO_VITORIA 1
-#define ESTADO_MENU_PRINCIPAL 2
-#define ESTADO_MENU_PAUSA 3
-#define ESTADO_CREDITOS 4
+#define ESTADO_VITORIA 2
+#define ESTADO_MENU_PRINCIPAL 3
+#define ESTADO_MENU_PAUSA 4
+#define ESTADO_CREDITOS 5
+
 
 int jogador_ativo = BRANCO;
+int jogador_maquina = VAZIO;
 int menu_principal=0,menu_pausa=0;
 
 const char CAMINHO_TEXTURA_MENU[] = "resources/reversi2.jpg";
 
-
 void trocarEstado(int estado);
 
-int trocarJogador(){
+
+int vencendo=0;
+void vitoria(){
+	vencendo=0;
+	if(pontuacao.branco > pontuacao.preto)jogador_ativo=BRANCO;	//ultimo jogador ativo aparecerá na mensagem de vitória
+	else if(pontuacao.branco < pontuacao.preto)jogador_ativo = PRETO;
+	else jogador_ativo=VAZIO;
+	trocarEstado(ESTADO_VITORIA);
+}
+
+int ultimo_n_jogadas = 0;		//limpar as marcações da rodada anterior
+Posicao *ultimas_jogadas = NULL;
+void limparMarcacoes(){
+	if(ultimas_jogadas != NULL){
+		int i;
+		for(i=0; i<ultimo_n_jogadas; i++){
+			tabuleiro[ultimas_jogadas[i].y][ultimas_jogadas[i].x] &= ~ATIVO;
+		}
+	}
+}
+void trocarJogador(){
 	if(jogador_ativo==PRETO){
 		jogador_ativo=BRANCO;
 	} else {
 		jogador_ativo=PRETO;
-	}
+	}	
+
 	
-	static int ultimo_n_jogadas = 0;		//limpar as marcações da rodada anterior
-	static Posicao *ultimas_jogadas = NULL;
-	int i;
-	for(i=0; i<ultimo_n_jogadas; i++){
-		tabuleiro[ultimas_jogadas[i].x][ultimas_jogadas[i].y] &= ~ATIVO;
-	}
+	limparMarcacoes();
 	
 	int n_jogadas = 0;						//gerar marcacoes desta rodada
 	Posicao *jogadas = possiveisJogadas(jogador_ativo, &n_jogadas);
-	for (i=0; i<n_jogadas; i++) {
-		tabuleiro[jogadas[i].x][jogadas[i].y] |= ATIVO;
+	
+	if(n_jogadas==0){
+		++vencendo;
+		if(vencendo==2)vitoria();
+	} else {
+		vencendo=0;
 	}
 	
-	if(ultimas_jogadas != NULL) free(ultimas_jogadas);	
-	ultimo_n_jogadas = n_jogadas;			//preparar para limpar as marcacoes desta rodada
-	ultimas_jogadas = jogadas;
-
-	if(n_jogadas==0){
-		return SEM_JOGADAS;
-	} else {
-		return HA_JOGADAS;
-	}
-}
-
-void vitoria(){
-	if(pontuacao.branco > pontuacao.preto)jogador_ativo=BRANCO;	//ultimo jogador ativo aparecerá na mensagem de vitória
-	else jogador_ativo = PRETO;
-	trocarEstado(ESTADO_VITORIA);
-}
-
-void controleDeJogo(){
-	if(trocarJogador() == SEM_JOGADAS){
-		if(trocarJogador() == SEM_JOGADAS){
-			vitoria();
+	if(jogador_maquina != jogador_ativo){	//apenas marca o tabuleiro para o jogador humano
+		int i;
+		for (i=0; i<n_jogadas; i++) {
+			tabuleiro[jogadas[i].y][jogadas[i].x] |= ATIVO;
 		}
+		
+		if(ultimas_jogadas != NULL) free(ultimas_jogadas);	
+		ultimo_n_jogadas = n_jogadas;			//preparar para limpar as marcacoes desta rodada
+		ultimas_jogadas = jogadas;
+	} else {
+		rushPlay(jogador_maquina, jogadas, n_jogadas);
+		free(jogadas);
+		trocarJogador();
 	}
+	
+	
+}
+
+void machineDelay(int value){
+	trocarJogador();
 }
 
 void drawVictory(){
@@ -116,7 +133,7 @@ void keyboardPause(unsigned char key, int x, int y){
 }
 void noKeyboard(unsigned char key, int x, int y){}
 
-void activeMouse(int key,int status,int x, int y){
+void doisJogadoresMouse(int key,int status,int x, int y){
 	int j = (x-LADO_CASA/2)/(LADO_CASA);
 	if(j<LADO_TABULEIRO){
 		
@@ -126,8 +143,16 @@ void activeMouse(int key,int status,int x, int y){
 				tabuleiro[i][j] &= ~ATIVO;
 				Posicao posicao = {j,i};
 				jogar(jogador_ativo, posicao);
-				controleDeJogo();
-			};
+				if(jogador_maquina == VAZIO){
+					trocarJogador();
+					if(vencendo != 0){
+						trocarJogador();
+					}
+				} else {
+					limparMarcacoes();
+					glutTimerFunc(500,machineDelay,0);
+				}
+			}
 		}
 	}
 }
@@ -162,13 +187,13 @@ void trocarEstado(int estado){
 			glutDisplayFunc(drawGame);
 			glutPassiveMotionFunc(hoverMouse);
 			glutKeyboardFunc(ingameKeyboard);	//corrigir
-			glutMouseFunc(activeMouse);
+			glutMouseFunc(doisJogadoresMouse);
 		break;
 		case ESTADO_VITORIA:
 			glutDisplayFunc(drawVictory);
 			glutPassiveMotionFunc(hoverMouse);
 			glutKeyboardFunc(keyboardVictory);
-			glutMouseFunc(activeMouse);
+			glutMouseFunc(noClick);
 		break;
 		case ESTADO_MENU_PRINCIPAL:
 			selecionarMenu(menu_principal);
@@ -211,11 +236,18 @@ void inicializaGl(int argc, char** argv){
 }
 
 void iniciarPartidaHumanoHumano(){
+	jogador_maquina=VAZIO;
 	esvaziaTabuleiro();
 	trocarJogador();
 	trocarEstado(ESTADO_JOGANDO);
 }
 void inciarPartidaHumanoMaquina(){
+	jogador_ativo=BRANCO;
+	jogador_maquina=PRETO;
+	
+	esvaziaTabuleiro();
+	trocarJogador();
+	trocarEstado(ESTADO_JOGANDO);
 }
 void mostrarCreditos(){
 	esvaziaTabuleiro();
@@ -239,10 +271,10 @@ int main(int argc, char **argv){
 	iniciarMenu(XMAX,YMAX);
 	menu_principal = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_principal);
-	adicionarBotao("humano vs humano", 40,20,28,5,iniciarPartidaHumanoHumano);
-	adicionarBotao("humano vs maquina", 40,20,36,5,inciarPartidaHumanoMaquina);
-	adicionarBotao("creditos", 40,20,44,5,mostrarCreditos);
-	adicionarBotao("sair", 40,20,52,5,quitar);
+	adicionarBotao("humano vs humano", 40,20,36,5,iniciarPartidaHumanoHumano);
+	adicionarBotao("humano vs maquina", 40,20,44,5,inciarPartidaHumanoMaquina);
+	adicionarBotao("creditos", 40,20,52,5,mostrarCreditos);
+	adicionarBotao("sair", 40,20,60,5,quitar);
 	menu_pausa = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_pausa);
 	adicionarTexto("JOGO PAUSADO", 50, 10);
