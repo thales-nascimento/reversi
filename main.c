@@ -15,7 +15,6 @@
 
 
 int jogador_ativo = BRANCO;
-int jogador_maquina = VAZIO;
 int menu_principal=0,menu_pausa=0;
 
 const char CAMINHO_TEXTURA_MENU[] = "resources/reversi2.jpg";
@@ -33,13 +32,11 @@ void vitoria(){
 }
 
 int ultimo_n_jogadas = 0;		//limpar as marcações da rodada anterior
-Posicao *ultimas_jogadas = NULL;
+Posicao ultimas_jogadas[LADO_TABULEIRO*LADO_TABULEIRO];
 void limparMarcacoes(){
-	if(ultimas_jogadas != NULL){
-		int i;
-		for(i=0; i<ultimo_n_jogadas; i++){
-			tabuleiro[ultimas_jogadas[i].y][ultimas_jogadas[i].x] &= ~ATIVO;
-		}
+	int i;
+	for(i=0; i<ultimo_n_jogadas; i++){
+		tabuleiro[ultimas_jogadas[i].y][ultimas_jogadas[i].x] &= ~ATIVO;
 	}
 }
 void trocarJogador(){
@@ -57,24 +54,26 @@ void trocarJogador(){
 	
 	if(n_jogadas==0){
 		++vencendo;
-		if(vencendo==2)vitoria();
+		if(vencendo==2){
+			vitoria();
+		} else {
+			trocarJogador();
+		}
 	} else {
 		vencendo=0;
-	}
 	
-	if(jogador_maquina != jogador_ativo){	//apenas marca o tabuleiro para o jogador humano
-		int i;
-		for (i=0; i<n_jogadas; i++) {
-			tabuleiro[jogadas[i].y][jogadas[i].x] |= ATIVO;
+		if(jogador_maquina != jogador_ativo){	//apenas marca o tabuleiro para o jogador humano
+			int i;
+			for (i=0; i<n_jogadas; i++) {
+				tabuleiro[jogadas[i].y][jogadas[i].x] |= ATIVO;
+			}
+			
+			ultimo_n_jogadas = n_jogadas;			//preparar para limpar as marcacoes desta rodada
+			memcpy(ultimas_jogadas, jogadas,sizeof(Posicao)*n_jogadas);
+		} else {
+			miniMaxPlay(jogador_maquina, jogadas, n_jogadas);
+			trocarJogador();
 		}
-		
-		if(ultimas_jogadas != NULL) free(ultimas_jogadas);	
-		ultimo_n_jogadas = n_jogadas;			//preparar para limpar as marcacoes desta rodada
-		ultimas_jogadas = jogadas;
-	} else {
-		rushPlay(jogador_maquina, jogadas, n_jogadas);
-		free(jogadas);
-		trocarJogador();
 	}
 	
 	
@@ -145,9 +144,6 @@ void doisJogadoresMouse(int key,int status,int x, int y){
 				jogar(jogador_ativo, posicao);
 				if(jogador_maquina == VAZIO){
 					trocarJogador();
-					if(vencendo != 0){
-						trocarJogador();
-					}
 				} else {
 					limparMarcacoes();
 					glutTimerFunc(500,machineDelay,0);

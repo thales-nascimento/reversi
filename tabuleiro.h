@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 // Estados de cada posição, preto e branco também são jogadores 
 #define PRETO 0x100
@@ -34,13 +35,13 @@ Posicao *possiveisJogadas(int jogador, int* n_jogadas);
 /**
 * Efetua a Posicao recebida por parâmetro para o jogador recebido por parâmetro
 */
-void jogar(int jogador, Posicao jogada);
+void jogar(int jogador, const Posicao jogada);
 
 /**
 * Esvazia o tabuleiro, colocando todas as posições como VAZIO
 */
 void esvaziaTabuleiro();
 
-void pontuar(int jogador, unsigned char swap);
+
 
 #endif
