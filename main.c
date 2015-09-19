@@ -18,10 +18,11 @@
 int jogador_ativo = BRANCO;
 int menu_principal=0,menu_pausa=0,menu_ai=0;
 
-const char CAMINHO_TEXTURA_MENU[] = "resources/reversi2.jpg";
+const char CAMINHO_TEXTURA_MENU[] = "resources/reversi.jpg";
+SDL_Surface *screen;
+Mix_Music *musica_fundo;
 
 void trocarEstado(int estado);
-
 
 int vencendo=0;
 void vitoria(){
@@ -268,6 +269,21 @@ void quitar(int parametro){
 	exit(0);
 }
 
+//- inicializa a SDL e SDL_Mix
+void initSom(){
+	SDL_Init(SDL_INIT_EVERYTHING); 
+	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
+}
+
+void carregarSom(){
+	musica_fundo = Mix_LoadMUS("resources/theme.wav");
+}
+
+void fecharMixer(){
+	Mix_FreeMusic(musica_fundo);
+	Mix_CloseAudio();
+	SDL_Quit();
+}
 
 int main(int argc, char **argv){
 	inicializaGl(argc, argv);
@@ -275,30 +291,34 @@ int main(int argc, char **argv){
 	iniciarAi(MINIMAX_PLAY | 4 | VALORIZAR_BORDAS);
 	menu_principal = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_principal);
-	adicionarBotao("humano vs humano", 40,20,36,5,iniciarPartidaHumanoHumano,0);
-	adicionarBotao("humano vs maquina", 40,20,44,5,trocarEstado,ESTADO_MENU_AI);
-	adicionarBotao("creditos", 40,20,52,5,trocarEstado,ESTADO_CREDITOS);
-	adicionarBotao("sair", 40,20,60,5,quitar,0);
+	adicionarBotao("Humano vs Humano", 40,20,36,5,iniciarPartidaHumanoHumano,0);
+	adicionarBotao("Humano vs Maquina", 40,20,44,5,trocarEstado,ESTADO_MENU_AI);
+	adicionarBotao("Creditos", 40,20,52,5,trocarEstado,ESTADO_CREDITOS);
+	adicionarBotao("Sair", 40,20,60,5,quitar,0);
 	menu_pausa = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_pausa);
 	adicionarTexto("JOGO PAUSADO", 50, 10);
-	adicionarBotao("retornar ao jogo", 40,20,28,5,trocarEstado,ESTADO_JOGANDO);
-	adicionarBotao("menu principal", 40,20,36,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
-	adicionarBotao("sair", 40,20,44,5,quitar,0);
+	adicionarBotao("Retornar ao jogo", 40,20,28,5,trocarEstado,ESTADO_JOGANDO);
+	adicionarBotao("Menu principal", 40,20,36,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
+	adicionarBotao("Sair", 40,20,44,5,quitar,0);
 	menu_ai = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_ai);
-	adicionarTexto("seletor de dificuldade", 50, 10);
+	adicionarTexto("Seletor de dificuldade", 50, 10);
 	adicionarBotao("1", 5,14,28,7,inciarPartidaHumanoMaquina,1);
 	adicionarBotao("2", 24,14,28,7,inciarPartidaHumanoMaquina,2);
 	adicionarBotao("3", 43,14,28,7,inciarPartidaHumanoMaquina,3);
 	adicionarBotao("4", 62,14,28,7,inciarPartidaHumanoMaquina,4);
 	adicionarBotao("5", 81,14,28,7,inciarPartidaHumanoMaquina,5);
-	adicionarBotao("menu principal", 40,20,38,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
-	adicionarBotao("sair", 40,20,46,5,quitar,0);
+	adicionarBotao("Menu principal", 40,20,38,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
+	adicionarBotao("Sair", 40,20,46,5,quitar,0);
 	
 	trocarEstado(ESTADO_MENU_PRINCIPAL);
 	
 	glutTimerFunc(20,mainLoop,0);
+	initSom();
+	carregarSom();
+	Mix_PlayMusic(musica_fundo, -1);
 	glutMainLoop();
+	fecharMixer();
 	return 0;
 }
