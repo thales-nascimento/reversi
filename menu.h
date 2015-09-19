@@ -19,6 +19,7 @@ typedef struct{
 	int x,w;
 	int y,h;
 	void (*funcao)();
+	int parametro;
 	int estado;
 }Botao;
 
@@ -40,7 +41,7 @@ void iniciarMenu(const int _XMAX, const int _YMAX);
 int novoMenu(const char *CAMINHO_TEXTURA);
 void selecionarMenu(int menu);
 void adicionarTexto(char *texto, float x, float y);
-void adicionarBotao(char *texto, float x, float w, float y, float h, void (*funcao)());
+void adicionarBotao(char *texto, float x, float w, float y, float h, void (*funcao)(int), int parametro);
 
 void desenhaMenu();
 

@@ -8,6 +8,7 @@
 #include <time.h>
 
 #define ESTADO_JOGANDO 0
+#define ESTADO_MENU_AI 1
 #define ESTADO_VITORIA 2
 #define ESTADO_MENU_PRINCIPAL 3
 #define ESTADO_MENU_PAUSA 4
@@ -15,7 +16,7 @@
 
 
 int jogador_ativo = BRANCO;
-int menu_principal=0,menu_pausa=0;
+int menu_principal=0,menu_pausa=0,menu_ai=0;
 
 const char CAMINHO_TEXTURA_MENU[] = "resources/reversi2.jpg";
 
@@ -71,7 +72,7 @@ void trocarJogador(){
 			ultimo_n_jogadas = n_jogadas;			//preparar para limpar as marcacoes desta rodada
 			memcpy(ultimas_jogadas, jogadas,sizeof(Posicao)*n_jogadas);
 		} else {
-			miniMaxPlay(jogador_maquina, jogadas, n_jogadas);
+			aiPlay(jogador_maquina, jogadas, n_jogadas);
 			trocarJogador();
 		}
 	}
@@ -119,9 +120,6 @@ void keyboardVictory(unsigned char key, int x, int y){
 	if(key==27){	//esc
 		trocarEstado(ESTADO_MENU_PRINCIPAL);
 	}
-}
-void keyboardPrincipal(unsigned char key, int x, int y){
-		//TODO
 }
 void keyboardPause(unsigned char key, int x, int y){
 	switch(key){
@@ -195,10 +193,11 @@ void trocarEstado(int estado){
 			selecionarMenu(menu_principal);
 			glutDisplayFunc(desenhaMenu);
 			glutPassiveMotionFunc(menuHover);
-			glutKeyboardFunc(keyboardPrincipal);
+			glutKeyboardFunc(noKeyboard);
 			glutMouseFunc(menuClick);
 		break;
 		case ESTADO_CREDITOS:
+			esvaziaTabuleiro();
 			glutDisplayFunc(desenhaCreditos);
 			glutPassiveMotionFunc(noHover);
 			glutKeyboardFunc(keyboardVictory);
@@ -208,7 +207,14 @@ void trocarEstado(int estado){
 			selecionarMenu(menu_pausa);
 			glutDisplayFunc(desenhaMenu);
 			glutPassiveMotionFunc(menuHover);
-			glutKeyboardFunc(keyboardPause);//corrigir
+			glutKeyboardFunc(keyboardPause);
+			glutMouseFunc(menuClick);
+		break;
+		case ESTADO_MENU_AI:
+			selecionarMenu(menu_ai);
+			glutDisplayFunc(desenhaMenu);
+			glutPassiveMotionFunc(menuHover);
+			glutKeyboardFunc(keyboardVictory);
 			glutMouseFunc(menuClick);
 		break;
 		
@@ -231,13 +237,24 @@ void inicializaGl(int argc, char** argv){
 	
 }
 
-void iniciarPartidaHumanoHumano(){
+void iniciarPartidaHumanoHumano(int parametro){
 	jogador_maquina=VAZIO;
 	esvaziaTabuleiro();
 	trocarJogador();
 	trocarEstado(ESTADO_JOGANDO);
 }
-void inciarPartidaHumanoMaquina(){
+void inciarPartidaHumanoMaquina(int dificuldade){
+	switch(dificuldade){
+		case 1: iniciarAi(RUSH_PLAY);
+		break;
+		case 2: iniciarAi(RUSH_PLAY | VALORIZAR_BORDAS);
+		break;
+		case 3: iniciarAi(MINIMAX_PLAY | 4);
+		break;
+		case 4: iniciarAi(MINIMAX_PLAY | 6 | VALORIZAR_BORDAS);
+		break;
+		case 5: iniciarAi(MINIMAX_PLAY | 8 | VALORIZAR_BORDAS);
+	}
 	jogador_ativo=BRANCO;
 	jogador_maquina=PRETO;
 	
@@ -245,40 +262,41 @@ void inciarPartidaHumanoMaquina(){
 	trocarJogador();
 	trocarEstado(ESTADO_JOGANDO);
 }
-void mostrarCreditos(){
-	esvaziaTabuleiro();
-	trocarEstado(ESTADO_CREDITOS);
-}
-void quitar(){
+void quitar(int parametro){
 	destruirMenu();
 	puts("obrigado por jogar");
 	exit(0);
-}
-void menuPrincipal(){
-	trocarEstado(ESTADO_MENU_PRINCIPAL);
-}
-void retornarAoJogo(){
-	trocarEstado(ESTADO_JOGANDO);
 }
 
 
 int main(int argc, char **argv){
 	inicializaGl(argc, argv);
 	iniciarMenu(XMAX,YMAX);
+	iniciarAi(MINIMAX_PLAY | 4 | VALORIZAR_BORDAS);
 	menu_principal = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_principal);
-	adicionarBotao("humano vs humano", 40,20,36,5,iniciarPartidaHumanoHumano);
-	adicionarBotao("humano vs maquina", 40,20,44,5,inciarPartidaHumanoMaquina);
-	adicionarBotao("creditos", 40,20,52,5,mostrarCreditos);
-	adicionarBotao("sair", 40,20,60,5,quitar);
+	adicionarBotao("humano vs humano", 40,20,36,5,iniciarPartidaHumanoHumano,0);
+	adicionarBotao("humano vs maquina", 40,20,44,5,trocarEstado,ESTADO_MENU_AI);
+	adicionarBotao("creditos", 40,20,52,5,trocarEstado,ESTADO_CREDITOS);
+	adicionarBotao("sair", 40,20,60,5,quitar,0);
 	menu_pausa = novoMenu(CAMINHO_TEXTURA_MENU);
 	selecionarMenu(menu_pausa);
 	adicionarTexto("JOGO PAUSADO", 50, 10);
-	adicionarBotao("retornar ao jogo", 40,20,28,5,retornarAoJogo);
-	adicionarBotao("menu principal", 40,20,36,5,menuPrincipal);
-	adicionarBotao("sair", 40,20,44,5,quitar);
+	adicionarBotao("retornar ao jogo", 40,20,28,5,trocarEstado,ESTADO_JOGANDO);
+	adicionarBotao("menu principal", 40,20,36,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
+	adicionarBotao("sair", 40,20,44,5,quitar,0);
+	menu_ai = novoMenu(CAMINHO_TEXTURA_MENU);
+	selecionarMenu(menu_ai);
+	adicionarTexto("seletor de dificuldade", 50, 10);
+	adicionarBotao("1", 5,14,28,7,inciarPartidaHumanoMaquina,1);
+	adicionarBotao("2", 24,14,28,7,inciarPartidaHumanoMaquina,2);
+	adicionarBotao("3", 43,14,28,7,inciarPartidaHumanoMaquina,3);
+	adicionarBotao("4", 62,14,28,7,inciarPartidaHumanoMaquina,4);
+	adicionarBotao("5", 81,14,28,7,inciarPartidaHumanoMaquina,5);
+	adicionarBotao("menu principal", 40,20,38,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
+	adicionarBotao("sair", 40,20,46,5,quitar,0);
 	
-	menuPrincipal();
+	trocarEstado(ESTADO_MENU_PRINCIPAL);
 	
 	glutTimerFunc(20,mainLoop,0);
 	glutMainLoop();

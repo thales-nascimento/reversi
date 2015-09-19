@@ -6,11 +6,13 @@
 
 extern int jogador_maquina;
 
+#define RUSH_PLAY 0x10
+#define MINIMAX_PLAY 0x20
+#define VALORIZAR_BORDAS 0x40
+#define PROFUNDIDADE 0x0f
 
-void iniciarAi();
+void iniciarAi(int estragegia);
 
-void rushPlay(int jogador, Posicao *jogadas, int n_jogadas);
-void rushCornerPlay(int jogador, Posicao *jogadas, int n_jogadas);
-void miniMaxPlay(int jogador, Posicao *jogadas, int n_jogadas);
+extern void (*aiPlay)(int, Posicao*, int);
 
 #endif

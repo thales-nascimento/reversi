@@ -52,7 +52,7 @@ void adicionarTexto(char* texto, float x, float y){
 	textos[n_textos-1].texto = texto;
 }
 
-void adicionarBotao(char* texto, float x, float w, float y, float h, void (*funcao)()){
+void adicionarBotao(char* texto, float x, float w, float y, float h, void (*funcao)(int), int parametro){
 	++n_botoes;
 	botoes = realloc(botoes, sizeof(Botao)*n_botoes);
 	
@@ -69,6 +69,7 @@ void adicionarBotao(char* texto, float x, float w, float y, float h, void (*func
 	botoes[n_botoes-1].w = w*MXMAX/100;
 	botoes[n_botoes-1].h = h*MYMAX/100;
 	botoes[n_botoes-1].funcao=funcao;
+	botoes[n_botoes-1].parametro=parametro;
 	botoes[n_botoes-1].texto=texto;
 	botoes[n_botoes-1].offset_texto_x = (botoes[n_botoes-1].w - strlen(texto)*FONTE_LARGURA)/2;
 	botoes[n_botoes-1].offset_texto_y = (botoes[n_botoes-1].h + FONTE_ALTURA)/2;
@@ -134,7 +135,7 @@ void menuClick(int key,int status,int x, int y){
 	if(i != n_botoes){
 		botoes[i].estado = BOTAO_CLICK;
 		if(status == GLUT_UP){
-			botoes[i].funcao();
+			botoes[i].funcao(botoes[i].parametro);
 			botoes[i].estado = BOTAO_NORMAL;
 		}
 	}

@@ -1,5 +1,5 @@
 all: main.c minimax.o tabuleiro.o graficos.o menu.o
-	gcc -Wall -o tester tabuleiro.o graficos.o menu.o minimax.o main.c -lm -lGL -lglut -lSDL -lSOIL 
+	gcc -O3 -Wall -o tester tabuleiro.o graficos.o menu.o minimax.o main.c -lm -lGL -lglut -lSDL -lSOIL 
 	
 menu.o: menu.c
 	gcc -c -o menu.o menu.c
