@@ -138,6 +138,7 @@ GLuint carregarTextura(const char *CAMINHO){
 	);
     if (textura == 0) {
         printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+        puts(CAMINHO);
         exit(1);
     }
     return textura;

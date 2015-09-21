@@ -125,9 +125,7 @@ void rushPlay(int jogador, Posicao *jogadas, int n_jogadas){
 }
 
 
-unsigned int calls;
 int miniMax(int jogador, int profundidade, int alfa, int beta){
-	++calls;
 	int adversario = jogador==PRETO?BRANCO:PRETO;
 	int valor = jogador==jogador_maquina?0:LADO_TABULEIRO*LADO_TABULEIRO;
 	
@@ -198,7 +196,6 @@ int miniMax(int jogador, int profundidade, int alfa, int beta){
 
 unsigned profundidade = 8;
 void miniMaxPlay(int jogador, Posicao *jogadas, int n_jogadas){
-	calls=0;
 	if(n_jogadas==0)return;
 	int adversario = jogador==PRETO?BRANCO:PRETO;
 	int valor = 0;
@@ -229,7 +226,6 @@ void miniMaxPlay(int jogador, Posicao *jogadas, int n_jogadas){
 	}
 	
 	jogar(jogador, jogadas[melhor_jogada]);
-	printf("%d\n", calls);
 }
 
 

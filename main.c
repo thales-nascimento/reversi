@@ -3,9 +3,9 @@
 #include "tabuleiro.h"
 #include "menu.h"
 #include "minimax.h"
+#include "splash.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h> 
-#include <time.h>
 
 #define ESTADO_JOGANDO 0
 #define ESTADO_MENU_AI 1
@@ -13,12 +13,14 @@
 #define ESTADO_MENU_PRINCIPAL 3
 #define ESTADO_MENU_PAUSA 4
 #define ESTADO_CREDITOS 5
+#define ESTADO_SPLASH 6
 
 
 int jogador_ativo = BRANCO;
 int menu_principal=0,menu_pausa=0,menu_ai=0;
 
 const char CAMINHO_TEXTURA_MENU[] = "resources/reversi.jpg";
+const char *CAMINHO_TEXTURA_SPLASH[] = {"resources/logo",".jpg"};
 SDL_Surface *screen;
 Mix_Music *musica_fundo;
 
@@ -110,7 +112,7 @@ void desenhaCreditos(){
 	glFlush();
 }
 
-void ingameKeyboard(unsigned char key, int x, int y){
+void keyboardIngame(unsigned char key, int x, int y){
 	switch(key){
 		case 27:	//esc
 			trocarEstado(ESTADO_MENU_PAUSA);
@@ -129,7 +131,6 @@ void keyboardPause(unsigned char key, int x, int y){
 		break;
 	}
 }
-void noKeyboard(unsigned char key, int x, int y){}
 
 void doisJogadoresMouse(int key,int status,int x, int y){
 	int j = (x-LADO_CASA/2)/(LADO_CASA);
@@ -151,7 +152,6 @@ void doisJogadoresMouse(int key,int status,int x, int y){
 		}
 	}
 }
-void noClick(int key, int status, int x, int y){}
 
 void hoverMouse(int x, int y){
 	static int last_y=0,last_x=0;
@@ -168,7 +168,6 @@ void hoverMouse(int x, int y){
 		}
 	}
 }
-void noHover(int x,int y){}
 
 
 void mainLoop(int value){		//game main loop
@@ -181,28 +180,28 @@ void trocarEstado(int estado){
 		case ESTADO_JOGANDO:
 			glutDisplayFunc(drawGame);
 			glutPassiveMotionFunc(hoverMouse);
-			glutKeyboardFunc(ingameKeyboard);	//corrigir
+			glutKeyboardFunc(keyboardIngame);	
 			glutMouseFunc(doisJogadoresMouse);
 		break;
 		case ESTADO_VITORIA:
 			glutDisplayFunc(drawVictory);
 			glutPassiveMotionFunc(hoverMouse);
 			glutKeyboardFunc(keyboardVictory);
-			glutMouseFunc(noClick);
+			glutMouseFunc(NULL);
 		break;
 		case ESTADO_MENU_PRINCIPAL:
 			selecionarMenu(menu_principal);
 			glutDisplayFunc(desenhaMenu);
 			glutPassiveMotionFunc(menuHover);
-			glutKeyboardFunc(noKeyboard);
+			glutKeyboardFunc(NULL);
 			glutMouseFunc(menuClick);
 		break;
 		case ESTADO_CREDITOS:
 			esvaziaTabuleiro();
 			glutDisplayFunc(desenhaCreditos);
-			glutPassiveMotionFunc(noHover);
+			glutPassiveMotionFunc(NULL);
 			glutKeyboardFunc(keyboardVictory);
-			glutMouseFunc(noClick);
+			glutMouseFunc(NULL);
 		break;
 		case ESTADO_MENU_PAUSA:
 			selecionarMenu(menu_pausa);
@@ -217,6 +216,10 @@ void trocarEstado(int estado){
 			glutPassiveMotionFunc(menuHover);
 			glutKeyboardFunc(keyboardVictory);
 			glutMouseFunc(menuClick);
+		break;
+		case ESTADO_SPLASH:
+			glutDisplayFunc(desenhaSplash);
+			
 		break;
 		
 	}
@@ -264,14 +267,15 @@ void inciarPartidaHumanoMaquina(int dificuldade){
 	trocarEstado(ESTADO_JOGANDO);
 }
 void quitar(int parametro){
+	trocarEstado(ESTADO_SPLASH);
+	splashReverso();
 	destruirMenu();
 	puts("obrigado por jogar");
-	exit(0);
 }
 
 //- inicializa a SDL e SDL_Mix
 void initSom(){
-	SDL_Init(SDL_INIT_EVERYTHING); 
+	SDL_Init(SDL_INIT_AUDIO);
 	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
 }
 
@@ -287,6 +291,10 @@ void fecharMixer(){
 
 int main(int argc, char **argv){
 	inicializaGl(argc, argv);
+	trocarEstado(ESTADO_SPLASH);
+	initSplash(CAMINHO_TEXTURA_SPLASH, trocarEstado, ESTADO_MENU_PRINCIPAL, exit, 0);
+	splash(1);
+	
 	iniciarMenu(XMAX,YMAX);
 	iniciarAi(MINIMAX_PLAY | 4 | VALORIZAR_BORDAS);
 	menu_principal = novoMenu(CAMINHO_TEXTURA_MENU);
@@ -312,9 +320,8 @@ int main(int argc, char **argv){
 	adicionarBotao("Menu principal", 40,20,38,5,trocarEstado,ESTADO_MENU_PRINCIPAL);
 	adicionarBotao("Sair", 40,20,46,5,quitar,0);
 	
-	trocarEstado(ESTADO_MENU_PRINCIPAL);
 	
-	glutTimerFunc(20,mainLoop,0);
+	mainLoop(0);
 	initSom();
 	carregarSom();
 	Mix_PlayMusic(musica_fundo, -1);
