@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <GL/freeglut.h>
+#include "graficos.h"
 
 #define FONTE_LARGURA 9
 #define FONTE_ALTURA 15

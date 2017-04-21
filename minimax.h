@@ -2,7 +2,7 @@
 #define __MINIMAX_H__
 
 #include "tabuleiro.h"
-
+#include "stdio.h"
 
 extern int jogador_maquina;
 

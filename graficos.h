@@ -1,11 +1,11 @@
 #ifndef __GRAFICOS_H__
 #define __GRAFICOS_H__
 
+#include "tabuleiro.h"
+#include "soil/src/SOIL.h"
 #include <string.h>
 #include <math.h>
 #include <GL/glut.h>
-#include <SOIL/SOIL.h>
-#include "tabuleiro.h"
 
 #define YMAX 600
 #define XMAX 800

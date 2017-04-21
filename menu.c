@@ -116,7 +116,7 @@ void desenhaMenu(){
 	glFlush();
 }
 
-int intersectar(x,y){
+int intersectar(int x, int y){
 	int i;
 	for(i=0;i<n_botoes;i++){
 		if(x>=botoes[i].x && x<= botoes[i].x+botoes[i].w){

@@ -1,5 +1,5 @@
 all: main.c minimax.o tabuleiro.o graficos.o menu.o splash.o
-	gcc -O3 -Wall -o tester tabuleiro.o graficos.o menu.o minimax.o splash.o main.c -lm -lGL -lglut -lSDL -lSOIL -lSDL_mixer
+	gcc -O3 -Wall -o reversi tabuleiro.o graficos.o menu.o minimax.o splash.o main.c -lm -lGL -lglut -lSDL -I./soil -L./soil/lib -lSOIL -lSDL_mixer
 	
 menu.o: menu.c
 	gcc -c -o menu.o menu.c
@@ -17,4 +17,4 @@ splash.o: splash.c
 	gcc -c -o splash.o splash.c
 
 clean:
-	rm *.o tester
+	rm -f *.o reversi
