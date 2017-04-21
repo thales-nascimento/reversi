@@ -11,4 +11,4 @@ Para usuários de pacman,
 ```
 # pacman -S sdl2_mixer
 ```
-Após instalar as dependencias, entre no diretório do jogo e digite `make`. Para executar, `./ `
+Após instalar as dependencias, entre no diretório do jogo e digite `make`. Para executar, `./reversi`
